@@ -1,8 +1,105 @@
+"use client"
 import Image from "next/image";
 import styles from "./page.module.css";
+import { useEffect, useState, useRef } from "react";
 
 export default function Home() {
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+  const [time, setTime] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [initialTime, setInitialTime] = useState(0);
+  const intervalRef = useRef(null);
+
+  const handleStart = () => {
+    setTime(minutes * 60 + seconds);
+    setInitialTime(minutes * 60 + seconds);
+    setIsActive(true);
+    setIsPaused(false);
+  };
+
+  const handleMinutes = (e) => {
+    setMinutes(Number(e.target.value))
+  }
+
+  const handleSeconds = (e) => {
+    setSeconds(Number(e.target.value))
+  }
+
+  const handlePauseResume = () => {
+    if (isPaused) {
+      setIsPaused(false);
+    } else {
+      setIsPaused(true);
+    }
+  };
+
+  const handleReset = () => {
+    clearInterval(intervalRef.current);
+    setIsActive(false);
+    setIsPaused(false);
+    setMinutes(0)
+    setSeconds(0)
+    setTime(initialTime);
+  };
+
+  useEffect(() => {
+    if (isActive && !isPaused) {
+      intervalRef.current = setInterval(() => {
+        setTime((prevTime) => {
+          if (prevTime > 0) {
+            return prevTime - 1;
+          } else {
+            clearInterval(intervalRef.current);
+            return 0;
+          }
+        });
+      }, 1000);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [isActive, isPaused]);
+
+  useEffect(() => {
+    setMinutes(Math.floor(time/60))
+    setSeconds(time%60)
+  },[time])
+
+
   return (
+    <>
+      <div>
+        <input type="text" /*value={minutes}*/ onChange={handleMinutes}/>
+        {" "}Minutes
+        <br />
+        <br />
+        <input type="text" /*value={seconds}*/ onChange={handleSeconds}/>
+        {" "}Seconds
+        <br />
+        <br />
+      </div>
+      <div>
+        <button onClick={handleStart}>START</button>
+        {" "}
+        <button onClick={handlePauseResume}>
+          {isPaused ? 'RESUME' : 'PAUSE'}
+        </button>
+        {" "}
+        <button onClick={handleReset}>RESET</button>
+      </div>
+      <div>
+        <h1>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</h1>
+        {/* 
+        Önce minutes ve seconds stringe çevrildi. padStart yöntemi, bir dizeyi belirli bir uzunluğa kadar doldurmak için kullanılır. 
+        İlk argüman hedef dize, en az 2 karakter uzunluğunda olur. 
+        İkinci argüman doldurma karakteri, dize uzunluğu iki karakterden kısaysa, başına 0 eklenir
+        */}
+      </div>
+    </>
+
+    /*
     <main className={styles.main}>
       <div className={styles.description}>
         <p>
@@ -91,5 +188,6 @@ export default function Home() {
         </a>
       </div>
     </main>
+    */
   );
 }
