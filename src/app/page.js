@@ -69,7 +69,7 @@ export default function Home() {
 
 
   return (
-    <>
+    <div className={styles.box}>
       <div>
         <input type="text" /*value={minutes}*/ onChange={handleMinutes}/>
         {" "}Minutes
@@ -97,7 +97,7 @@ export default function Home() {
         İkinci argüman doldurma karakteri, dize uzunluğu iki karakterden kısaysa, başına 0 eklenir
         */}
       </div>
-    </>
+    </div>
 
     /*
     <main className={styles.main}>
