@@ -9,29 +9,29 @@ export default function Home() {
   const [time, setTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [initialTime, setInitialTime] = useState(0);
+  const [initialTime, setInitialTime] = useState(0); // Başlangıç zamanını saklamak için
   const intervalRef = useRef(null);
 
   const handleStart = () => {
-    setTime(minutes * 60 + seconds);
-    setInitialTime(minutes * 60 + seconds);
+    if (!isActive && !isPaused) {
+      const totalSeconds = minutes * 60 + seconds;
+      setInitialTime(totalSeconds); // Başlangıç zamanını kaydet
+      setTime(totalSeconds);
+    } else if (isPaused) {
+      setTime(initialTime); // Duraklatıldıktan sonra başlatıldığında başlangıç zamanına dön
+    }
     setIsActive(true);
     setIsPaused(false);
+    clearInterval(intervalRef.current);
   };
-
-  const handleMinutes = (e) => {
-    setMinutes(Number(e.target.value))
-  }
-
-  const handleSeconds = (e) => {
-    setSeconds(Number(e.target.value))
-  }
 
   const handlePauseResume = () => {
     if (isPaused) {
       setIsPaused(false);
+      setIsActive(true);
     } else {
       setIsPaused(true);
+      setIsActive(false);
     }
   };
 
@@ -39,8 +39,8 @@ export default function Home() {
     clearInterval(intervalRef.current);
     setIsActive(false);
     setIsPaused(false);
-    setMinutes(0)
-    setSeconds(0)
+    setMinutes(Math.floor(initialTime / 60));
+    setSeconds(initialTime % 60);
     setTime(initialTime);
   };
 
@@ -63,19 +63,18 @@ export default function Home() {
   }, [isActive, isPaused]);
 
   useEffect(() => {
-    setMinutes(Math.floor(time/60))
-    setSeconds(time%60)
-  },[time])
-
+    setMinutes(Math.floor(time / 60));
+    setSeconds(time % 60);
+  }, [time]);
 
   return (
     <div className={styles.box}>
       <div>
-        <input type="text" /*value={minutes}*/ onChange={handleMinutes}/>
+        <input type="text"  onChange={(e) => setMinutes(Number(e.target.value))}/>
         {" "}Minutes
         <br />
         <br />
-        <input type="text" /*value={seconds}*/ onChange={handleSeconds}/>
+        <input type="text"  onChange={(e) => setSeconds(Number(e.target.value))}/>
         {" "}Seconds
         <br />
         <br />
@@ -91,14 +90,19 @@ export default function Home() {
       </div>
       <div>
         <h1>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</h1>
-        {/* 
+      </div>
+    </div>
+    
+/*
+    <div>
+        <h1>{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</h1>
+         
         Önce minutes ve seconds stringe çevrildi. padStart yöntemi, bir dizeyi belirli bir uzunluğa kadar doldurmak için kullanılır. 
         İlk argüman hedef dize, en az 2 karakter uzunluğunda olur. 
         İkinci argüman doldurma karakteri, dize uzunluğu iki karakterden kısaysa, başına 0 eklenir
-        */}
+        
       </div>
-    </div>
-
+*/
     /*
     <main className={styles.main}>
       <div className={styles.description}>
